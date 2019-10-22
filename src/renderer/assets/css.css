@@ -1,0 +1,27 @@
+@import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro');
+
+:root{
+  --title-bar-size: 1.5rem;
+  --title-bar-color: gray;
+  --background-color: #FFF;
+  --hover-color: #d6d6d6;
+  --text-color: black;
+  --field-border-color: #A4A4A4;
+  --field-border-color-focused: #9d9fec;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  color: var(--text-color);
+}
+
+a {
+  text-decoration: none;
+}
+
+body { 
+  font-family: 'Source Sans Pro', sans-serif; 
+  background-color: var(--background-color);
+}
