@@ -1,6 +1,7 @@
 <template>
   <div>
     <h1>Main Page</h1>
+    <h2 @click="navigate('/products')">Products</h2>
   </div>
 </template>
 
@@ -11,7 +12,11 @@
     data() {
       return { }
     },
-    methods: { }
+    methods: { 
+      navigate: function(route) {
+        this.$router.push(route)
+      }
+    }
   }
 </script>
 

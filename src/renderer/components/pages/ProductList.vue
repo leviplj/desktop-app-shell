@@ -1,0 +1,99 @@
+<template>
+  <div>
+    <h1>Product List</h1>
+    <h2 @click="navigate('/')">Main</h2>
+    <input type="checkbox" name="" id="" v-model="exit"> Exit
+    <div class="container">
+      <table>
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th>Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(product, index) in pageOfItems">
+            <td>{{product.description}}</td>
+            <td>{{product.price}}</td>
+            <h2 @click="navigate(`/products/edit/${product.id}`)">Edit</h2>
+          </tr>
+        </tbody>
+      </table>
+      <h2 @click="navigate('/products/add')">Add</h2>
+      <br>
+      <paginator @OnPageChange="pageChange" @getItems="getItems" :items="products"/>
+    </div>
+  </div>
+</template>
+
+<script>
+  import Paginator from '@/components/Paginator'
+
+  export default {
+    name: 'product-list',
+    components: { Paginator },
+    data() {
+      return { 
+        exit: true,
+        pageOfItems: [],
+      }
+    },
+    methods: { 
+      navigate: function(route) {
+        this.$router.push(route)
+      },
+      pageChange: function(pageOfItems) {
+        this.pageOfItems = pageOfItems;
+      },
+      getItems: function(start, end) {
+        return this.products.slice(start, end)
+      }
+    },
+    beforeRouteLeave (to, from, next) {
+      if (this.exit) {
+        next()
+      } else {
+        this.$dialog.confirm('Do you want to proceed?')
+          .then(function () {
+            next()
+          })
+          .catch(function () {
+            next(false)
+          });
+      }
+		},
+  }
+</script>
+
+<style lang="scss">
+  table {    
+    width: 100%;
+    margin-bottom: 1rem;
+    color: #212529;
+    border-collapse: collapse;
+
+    thead {
+      th {
+        text-align: left;
+        vertical-align: bottom;
+        border-bottom: 2px solid #dee2e6;
+      }
+    }
+
+    td,
+    th {
+      padding: .75rem;
+      vertical-align: top;
+      border-top: 1px solid #dee2e6;
+    }
+
+    tbody {
+      td {
+        
+      }
+    }
+
+
+  }
+
+</style>

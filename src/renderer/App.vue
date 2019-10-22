@@ -31,8 +31,7 @@
     data(){
       return {
         w: require('electron').remote.getCurrentWindow(),        
-        maxRestoreClass: null,
-        url: __static
+        maxRestoreClass: null
       }
     },
     created() {
@@ -69,6 +68,7 @@
     width: 100%;
     height: var(--title-bar-size);
     background-color: var(--title-bar-color);
+    overflow: hidden;
 
     #logo {
       padding: .0 .5rem;

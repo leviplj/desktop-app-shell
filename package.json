@@ -22,6 +22,7 @@
     "webpack": "^4.41.2"
   },
   "dependencies": {
-    "source-map-support": "^0.5.13"
+    "source-map-support": "^0.5.13",
+    "vuejs-dialog": "^1.4.1"
   }
 }
