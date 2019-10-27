@@ -1,40 +1,61 @@
 <template>
   <div>
     <h1>Product Form</h1>
-    <form-button @click.native="navigate('/products')">Back</form-button>
+    <base-button class="link" @click.native="navigate('/products')">Back</base-button>
     <input type="checkbox" name="" id="" v-model="exit"> Exit
     <div class="container">
-        <input-field id="description" placeholder="Description" v-model="description"/>
-        <input-field id="price" placeholder="Price" v-model="price"/>
+        <input-field id="description" placeholder="Description" v-model="description" :klass="getErrors('description').length ? 'invalid' : ''"/>
+        <input-field id="price" placeholder="Price" v-model="price" :klass="getErrors('price').length ? 'invalid' : ''"/>
 
         <div class="form-control">
-            <form-button class="success" @click.native="save()">Save</form-button>
-            <form-button class="link" @click.native="navigate('/products')">Cancel</form-button>
+            <success-button @click.native="save()">Save</success-button>
+            <base-button class="link" @click.native="navigate('/products')">Cancel</base-button>
         </div>
     </div>
   </div>
 </template>
 
 <script>
+  import NavMixin from '@/mixins/NavMixin'
   import InputField from '@/components/InputField'
-  import FormButton from '@/components/FormButton'
+  import BaseButton from '@/components/button/BaseButton'
+  import PrimaryButton from '@/components/button/PrimaryButton'
+  import SuccessButton from '@/components/button/SuccessButton'
   
   export default {
     name: 'product-form',
-    components: { InputField, FormButton },
+    components: { InputField, BaseButton, PrimaryButton, SuccessButton },
+    mixins: [ NavMixin ],
     data() {
       return { 
         description: '',
         price: 0,
-        exit: false
+        exit: false, 
+        errors: {description:'', price:'', exit:''},
+        err: [],
       }
     },
-    methods: { 
-      navigate: function(route) {
-        this.$router.push(route)
+    methods: {
+      getErrors: function(field) {
+        let a = this.err.filter(x => field in x)
+        console.log(field, a)
+        return a
       },
       save: function() {
-          if (this.$route.params.id !== undefined) {            
+        this.err = []
+        if (! this.description) {
+          this.err.push({'description': 'Required'})
+        }
+
+        if (! this.price) {
+          this.err.push({'price': 'Required'})
+        }
+
+        if (!! this.err.length) {
+          return
+        }
+
+          if (this.$route.params.id !== undefined) {
             let product = this.products.find((x) => x.id == this.$route.params.id)
             product.description = this.description
             product.price = this.price

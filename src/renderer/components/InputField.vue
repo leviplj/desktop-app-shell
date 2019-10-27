@@ -1,6 +1,6 @@
 <template>
   <div class="field">
-    <input type="text" placeholder=" " :id="id" :required="required" @input="$emit('input', $event.target.value)" :value="value">
+    <input :class="klass" type="text" placeholder=" " :id="id" :required="required" @input="$emit('input', $event.target.value)" :value="value">
     <label for="">
       <span class="placeholder">
         {{placeholder}}
@@ -11,7 +11,7 @@
 
 <script>
 export default {
-  props: ['placeholder', 'id', 'required', 'value'],
+  props: ['placeholder', 'id', 'required', 'value', 'klass'],
 }
 </script>
 
@@ -28,6 +28,7 @@ export default {
       padding-top: 1rem;
       border: none;
       outline: none;
+      background: inherit;
     }
 
     input + label {

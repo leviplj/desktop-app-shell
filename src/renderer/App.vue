@@ -20,14 +20,19 @@
       </div>
     </div>
     <div>
+      <side-menu />
       <router-view></router-view>
     </div>
   </div>
 </template>
 
 <script>
+  import NavMixin from '@/mixins/NavMixin'
+  import SideMenu from '@/components/SideMenu'
+
   export default {
     name: 'proto',
+    components: { SideMenu },
     data(){
       return {
         w: require('electron').remote.getCurrentWindow(),        

@@ -1,19 +1,19 @@
 <template>
     <ul v-if="totalPages" class="pagination">
       <li class="page-item first" >
-          <button class="page-link" @click="setPage(1)" :disabled="currentPage === 1? true: false"><<</button>
+          <base-button class="page-link" @click.native="setPage(1)" :disabled="currentPage === 1? true: false"><<</base-button>
       </li>
       <li class="page-item first" :disabled="{'true': currentPage === 1}">
-          <button class="page-link" @click="setPage(--currentPage)" :disabled="currentPage === 1? true: false"><</button>
+          <base-button class="page-link" @click.native="setPage(--currentPage)" :disabled="currentPage === 1? true: false"><</base-button>
       </li>    
       <li v-for="n in totalPages" class="page-item first">
-          <button class="page-link" @click="setPage(n)" :disabled="currentPage === n? true: false">{{n}}</button>
+          <base-button class="page-link" @click.native="setPage(n)" :disabled="currentPage === n? true: false">{{n}}</base-button>
       </li>
       <li class="page-item first" :disabled="{'true': currentPage === 1}">
-          <button class="page-link" @click="setPage(++currentPage)" :disabled="currentPage === totalPages? true: false">></button>
+          <base-button class="page-link" @click.native="setPage(++currentPage)" :disabled="currentPage === totalPages? true: false">></base-button>
       </li>
       <li class="page-item first" >
-          <button class="page-link" @click="setPage(totalPages)" :disabled="currentPage === totalPages? true: false">>></button>
+          <base-button class="page-link" @click.native="setPage(totalPages)" :disabled="currentPage === totalPages? true: false">>></base-button>
       </li>
 
       <li>Pages: {{totalPages}}</li>
@@ -21,7 +21,10 @@
 </template>
 
 <script>
+import BaseButton from '@/components/button/BaseButton'
+
 export default {
+  components: { BaseButton },
   props: {
     items: {
         type: Array,

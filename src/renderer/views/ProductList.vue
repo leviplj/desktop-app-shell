@@ -21,27 +21,27 @@
       </table>
       <h2 @click="navigate('/products/add')">Add</h2>
       <br>
-      <paginator @OnPageChange="pageChange" @getItems="getItems" :items="products"/>
+      <paginator @OnPageChange="pageChange" @getItems="getItems" :items="products" :pageSize="4"/>
     </div>
   </div>
 </template>
 
 <script>
+  import NavMixin from '@/mixins/NavMixin'
   import Paginator from '@/components/Paginator'
 
   export default {
     name: 'product-list',
+    mixins: [ NavMixin, ],
     components: { Paginator },
     data() {
+      console.log(this)
       return { 
         exit: true,
         pageOfItems: [],
       }
     },
-    methods: { 
-      navigate: function(route) {
-        this.$router.push(route)
-      },
+    methods: {
       pageChange: function(pageOfItems) {
         this.pageOfItems = pageOfItems;
       },

@@ -6,16 +6,14 @@
 </template>
 
 <script>
+  import NavMixin from '@/mixins/NavMixin'
+
   export default {
     name: 'main-page',
+    mixins: [ NavMixin, ],
     components: { },
     data() {
       return { }
-    },
-    methods: { 
-      navigate: function(route) {
-        this.$router.push(route)
-      }
     }
   }
 </script>
