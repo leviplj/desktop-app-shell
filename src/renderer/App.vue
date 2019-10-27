@@ -27,8 +27,11 @@
 </template>
 
 <script>
+  import '@/assets/css.css'
+
   import NavMixin from '@/mixins/NavMixin'
   import SideMenu from '@/components/SideMenu'
+  import { ipcRenderer } from 'electron'
 
   export default {
     name: 'proto',
@@ -36,7 +39,8 @@
     data(){
       return {
         w: require('electron').remote.getCurrentWindow(),        
-        maxRestoreClass: null
+        maxRestoreClass: null,
+        message: ''
       }
     },
     created() {
@@ -47,6 +51,10 @@
       })
       this.w.addListener('unmaximize', () => {
         this.maxRestoreClass = 'window-maximize'
+      })
+
+      ipcRenderer.on('message', (event, text) => {
+        console.log('Updates', text)
       })
     },
     methods: {

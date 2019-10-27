@@ -1,17 +1,27 @@
 {
   "name": "desktop-app-shell",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "",
   "main": "index.js",
   "scripts": {
     "dev": "electron-webpack dev",
-    "build": "electron-webpack"
+    "build": "electron-webpack",
+    "build:linux": "electron-webpack && electron-builder --linux --x64",
+    "publish": "electron-webpack && electron-builder --linux --x64 -p always"
   },
   "author": "leviplj <leviplj@gmail.com>",
   "license": "ISC",
+  "build": {
+    "linux": {
+      "publish": {
+        "provider": "github"
+      }
+    }
+  },
   "devDependencies": {
     "copy-webpack-plugin": "^5.0.4",
     "electron": "^6.0.12",
+    "electron-builder": "^21.2.0",
     "electron-webpack": "^2.7.4",
     "node-sass": "^4.12.0",
     "sass-loader": "^8.0.0",
@@ -22,6 +32,8 @@
     "webpack": "^4.41.2"
   },
   "dependencies": {
+    "electron-log": "^3.0.8",
+    "electron-updater": "^4.1.2",
     "source-map-support": "^0.5.13",
     "vuejs-dialog": "^1.4.1"
   }
