@@ -4,7 +4,7 @@
     <base-button class="link" @click.native="navigate('/products')">Back</base-button>
     <input type="checkbox" name="" id="" v-model="exit"> Exit
     <div class="container">
-        <input-field id="description" placeholder="Description" v-model="description" :klass="getErrors('description').length ? 'invalid' : ''"/>
+        <input-field id="description" placeholder="Description" v-model="description" :klass="getErrors('price').length ? 'invalid' : ''"/>
         <input-field id="price" placeholder="Price" v-model="price" :klass="getErrors('price').length ? 'invalid' : ''"/>
 
         <div class="form-control">
@@ -37,9 +37,7 @@
     },
     methods: {
       getErrors: function(field) {
-        let a = this.err.filter(x => field in x)
-        console.log(field, a)
-        return a
+        return this.err.filter(x => field in x)
       },
       save: function() {
         this.err = []
@@ -55,18 +53,17 @@
           return
         }
 
-          if (this.$route.params.id !== undefined) {
-            let product = this.products.find((x) => x.id == this.$route.params.id)
-            product.description = this.description
-            product.price = this.price
-          } else {
-            let id = this.products.length + 1
-            console.log(id)
-            this.products.push({id: id, description: this.description, price: this.price})
-          }
+        if (this.$route.params.id !== undefined) {
+          let product = this.products.find((x) => x.id == this.$route.params.id)
+          product.description = this.description
+          product.price = this.price
+        } else {
+          let id = this.products.length + 1
+          this.products.push({id: id, description: this.description, price: this.price})
+        }
 
-          this.exit = true          
-          this.navigate('/products')
+        this.exit = true          
+        this.navigate('/products')
       },
       canLeave: function() {
         if (this.exit) return true
@@ -74,7 +71,7 @@
           (this.price === 0 || this.price === '')
       }
     },
-    created() {      
+    created() {
         if (this.$route.params.id !== undefined) {
           let product = this.products.find((x) => x.id == this.$route.params.id)
           this.description = product.description

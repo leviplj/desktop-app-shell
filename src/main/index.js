@@ -1,6 +1,7 @@
 import { app, BrowserWindow, dialog } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import Log from 'electron-log'
+import db, {sequelize} from './db/models/index'
 
 autoUpdater.logger = Log
 autoUpdater.logger.transports.file.level = 'info'
@@ -33,8 +34,10 @@ let createWindow = ()  => {
 }
 
 app.on('ready', () => {
-  createWindow()
-
+  sequelize.sync().then(() => {
+    createWindow()
+  });
+  
   autoUpdater.checkForUpdatesAndNotify();
 })
 

@@ -6,12 +6,19 @@
   "scripts": {
     "dev": "electron-webpack dev",
     "build": "electron-webpack",
+    "build:win": "electron-webpack && electron-builder --win --x64",
     "build:linux": "electron-webpack && electron-builder --linux --x64",
-    "publish": "electron-webpack && electron-builder --linux --x64 -p always"
+    "publish:win": "electron-webpack && electron-builder --win --x64 -p always",
+    "publish:linux": "electron-webpack && electron-builder --linux --x64 -p always"
   },
   "author": "leviplj <leviplj@gmail.com>",
   "license": "ISC",
   "build": {
+    "win": {
+      "publish": {
+        "provider": "github"
+      }
+    },
     "linux": {
       "publish": {
         "provider": "github"
@@ -34,6 +41,9 @@
   "dependencies": {
     "electron-log": "^3.0.8",
     "electron-updater": "^4.1.2",
+    "pg": "^7.12.1",
+    "pg-hstore": "^2.3.3",
+    "sequelize": "^5.21.1",
     "source-map-support": "^0.5.13",
     "vuejs-dialog": "^1.4.1"
   }

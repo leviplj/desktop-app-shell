@@ -6,7 +6,7 @@
       <li class="page-item first" :disabled="{'true': currentPage === 1}">
           <base-button class="page-link" @click.native="setPage(--currentPage)" :disabled="currentPage === 1? true: false"><</base-button>
       </li>    
-      <li v-for="n in totalPages" class="page-item first">
+      <li v-for="n in pages" class="page-item first">
           <base-button class="page-link" @click.native="setPage(n)" :disabled="currentPage === n? true: false">{{n}}</base-button>
       </li>
       <li class="page-item first" :disabled="{'true': currentPage === 1}">
@@ -15,13 +15,44 @@
       <li class="page-item first" >
           <base-button class="page-link" @click.native="setPage(totalPages)" :disabled="currentPage === totalPages? true: false">>></base-button>
       </li>
-
-      <li>Pages: {{totalPages}}</li>
   </ul>
 </template>
 
 <script>
 import BaseButton from '@/components/button/BaseButton'
+
+let range = function*(start, stop, step = 1) {
+  [start, stop] = !! stop ? [start, stop] : [0, start]
+
+  for (let i = start; step > 0 ? i < stop : i > stop; i += step) 
+      yield i
+}
+
+let paginate = function(page, pageSize, items) {      
+      let totalPages = Math.trunc(items.length / pageSize) 
+
+      if (!! (items.length % pageSize)) {
+        totalPages++  
+      }
+      
+      let itemsFilter = {
+        offset: pageSize * (page - 1),
+        limit: pageSize
+      }
+
+      let [pagesStart, pagesEnd] = [
+        Math.max(Math.min(page-2, totalPages-4), 1),
+        Math.min(Math.max(page+2, 5), totalPages)
+      ]
+
+      let pages = [...range(pagesStart, ++pagesEnd)]
+
+      return {
+        totalPages,
+        pages,
+        itemsFilter,
+      }
+}
 
 export default {
   components: { BaseButton },
@@ -52,22 +83,20 @@ export default {
     return {
       currentPage: 0,
       totalPages: 0,
+      pages: [],
     }
   },
   methods: {
     setPage: function(page) {
-      const { items, pageSize } = this;
-
       this.currentPage = page
-      this.totalPages = Math.trunc(items.length / pageSize) + (!! (items.length % pageSize)? 1 : 0)
-      let start = pageSize * (page - 1)
-      let end = start + pageSize
 
-      let result = this.$listeners.getItems(start, end)
+      const {pages, totalPages, itemsFilter} = paginate(page, this.pageSize, this.items)
+      this.pages = pages
+      this.totalPages = totalPages
+
+      let result = this.$listeners.getItems(itemsFilter.offset, itemsFilter.limit)
       
-      global.items = result
-      
-      this.$emit('OnPageChange', global.items)
+      this.$emit('OnPageChange', result)
     }
   }
 

@@ -35,7 +35,6 @@
     mixins: [ NavMixin, ],
     components: { Paginator },
     data() {
-      console.log(this)
       return { 
         exit: true,
         pageOfItems: [],
@@ -45,7 +44,8 @@
       pageChange: function(pageOfItems) {
         this.pageOfItems = pageOfItems;
       },
-      getItems: function(start, end) {
+      getItems: function(offset, limit) {
+        let [start, end] = [offset, offset + limit]
         return this.products.slice(start, end)
       }
     },
