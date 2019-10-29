@@ -13,7 +13,7 @@
         </thead>
         <tbody>
           <tr v-for="(product, index) in pageOfItems">
-            <td>{{product.description}}</td>
+            <td>{{product.name}}</td>
             <td>{{product.price}}</td>
             <h2 @click="navigate(`/products/edit/${product.id}`)">Edit</h2>
           </tr>
@@ -21,7 +21,7 @@
       </table>
       <h2 @click="navigate('/products/add')">Add</h2>
       <br>
-      <paginator @OnPageChange="pageChange" @getItems="getItems" :items="products" :pageSize="4"/>
+      <paginator @OnPageChange="pageChange" @getItems="getItems" :itemsCount="itemsCount" :pageSize="5"/>
     </div>
   </div>
 </template>
@@ -29,13 +29,15 @@
 <script>
   import NavMixin from '@/mixins/NavMixin'
   import Paginator from '@/components/Paginator'
+  import { ipcRenderer } from 'electron'
 
   export default {
     name: 'product-list',
     mixins: [ NavMixin, ],
     components: { Paginator },
     data() {
-      return { 
+      return {
+        itemsCount: 0,
         exit: true,
         pageOfItems: [],
       }
@@ -44,10 +46,13 @@
       pageChange: function(pageOfItems) {
         this.pageOfItems = pageOfItems;
       },
-      getItems: function(offset, limit) {
-        let [start, end] = [offset, offset + limit]
-        return this.products.slice(start, end)
+      getItems: function(offset, limit) {        
+        return ipcRenderer.sendSync('products', {offset, limit}).slice()
       }
+    },
+    created() {
+      this.itemsCount = ipcRenderer.sendSync('products/count')
+      console.log(this.itemsCount)
     },
     beforeRouteLeave (to, from, next) {
       if (this.exit) {

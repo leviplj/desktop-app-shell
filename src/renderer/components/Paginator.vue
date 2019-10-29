@@ -28,10 +28,10 @@ let range = function*(start, stop, step = 1) {
       yield i
 }
 
-let paginate = function(page, pageSize, items) {      
-      let totalPages = Math.trunc(items.length / pageSize) 
+let paginate = function(page, pageSize, itemsCount) {      
+      let totalPages = Math.trunc(itemsCount / pageSize) 
 
-      if (!! (items.length % pageSize)) {
+      if (!! (itemsCount % pageSize)) {
         totalPages++  
       }
       
@@ -57,12 +57,8 @@ let paginate = function(page, pageSize, items) {
 export default {
   components: { BaseButton },
   props: {
-    items: {
-        type: Array,
-        required: true
-    },
-    items: {
-        type: Array,
+    itemsCount: {
+        type: Number,
         required: true
     },
     initialPage: {
@@ -74,7 +70,7 @@ export default {
       default: 3
     },
   },
-  created() {    
+  mounted() {    
     if (!! this.$listeners.OnPageChange) {
       this.setPage(this.initialPage)
     }
@@ -90,11 +86,12 @@ export default {
     setPage: function(page) {
       this.currentPage = page
 
-      const {pages, totalPages, itemsFilter} = paginate(page, this.pageSize, this.items)
+      const {pages, totalPages, itemsFilter} = paginate(page, this.pageSize, this.itemsCount)
       this.pages = pages
       this.totalPages = totalPages
 
       let result = this.$listeners.getItems(itemsFilter.offset, itemsFilter.limit)
+      global.result = result
       
       this.$emit('OnPageChange', result)
     }

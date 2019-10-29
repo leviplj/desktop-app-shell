@@ -96,9 +96,6 @@
 
 <style lang="scss">
  .form-control {
-    position: fixed;
-    bottom: 0;
-    right: 0;
     display: flex;
     justify-content: space-around;
     align-content: center;

@@ -1,3 +1,4 @@
+import { dialog } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import Log from 'electron-log'
 
@@ -6,9 +7,11 @@ autoUpdater.logger.transports.file.level = 'info'
 autoUpdater.autoDownload = false
 autoUpdater.autoInstallOnAppQuit = false
 
-// ------------------
-// Auto Updates
-// ------------------
+let sendMessage = (event, data) => {
+  if (!! autoUpdater.window) {
+    autoUpdater.window.webContents.send(event, data)
+  }
+}
 
 autoUpdater.on('error', (error) => {
   console.log('Error: ', error == null ? "unknown" : (error.stack || error).toString())
@@ -34,7 +37,14 @@ autoUpdater.on('update-available', () => {
 })
 
 autoUpdater.on('download-progress', progress => {
-  console.log(`Progress: Bps: ${progress.bytesPerSecond}, %: ${progress.percent}, ${progres.transferred} - ${progress.total}`)
+  console.log(`Progress: Bps: ${progress.bytesPerSecond}, %: ${progress.percent}, ${progress.transferred} - ${progress.total}`)
+  sendMessage('download-progress', {
+    message: 'Downloading updates',
+    bps: progress.bytesPerSecond,
+    percent: progress.percent,
+    transferred: progress.transferred,
+    total: progress.total,
+  })
 })
 
 
@@ -47,13 +57,17 @@ autoUpdater.on('update-downloaded', () => {
     title: 'Install Updates',
     message: 'Updates downloaded, application will be quit for update...'
   }, () => {
-    window.webContents.send('message', 'updated')
+    sendMessage('update-downloaded', '')
     //setImmediate(() => autoUpdater.quitAndInstall())
   })
 })
 
 autoUpdater.setWindow = function(window) {
-  this.window = window
+  autoUpdater.window = window
 }
+
+setTimeout(() => {
+  sendMessage('update-downloaded', 's')
+}, 5000);
 
 export default autoUpdater

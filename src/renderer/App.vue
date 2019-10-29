@@ -23,6 +23,13 @@
       <side-menu />
       <router-view></router-view>
     </div>
+    <footer v-if="message">
+      <span class="msg">{{message}}</span>
+      <span class="progress">
+        <span>{{rate}}ps</span>
+        <span>{{percent}}% ({{transferred}} - {{total}})</span>
+      </span>
+    </footer>
   </div>
 </template>
 
@@ -33,6 +40,20 @@
   import SideMenu from '@/components/SideMenu'
   import { ipcRenderer } from 'electron'
 
+  let normalizeBytes = (bytes) => {    
+    let index = 0
+    let tail = ['B', 'KB', 'MB', 'GB', 'TB']
+    let total = bytes
+    let K_VALUE = 1024
+    
+    while (total >= K_VALUE) {
+      index++
+      total /= K_VALUE
+    }
+
+    return `${total.toFixed(2)} ${tail[index]}`
+  }
+
   export default {
     name: 'proto',
     components: { SideMenu },
@@ -40,7 +61,13 @@
       return {
         w: require('electron').remote.getCurrentWindow(),        
         maxRestoreClass: null,
-        message: ''
+        message: '',
+        download: {
+          rate: 0,
+          percent: 0,
+          transferred: 0,
+          total: 0,
+        },
       }
     },
     created() {
@@ -51,10 +78,6 @@
       })
       this.w.addListener('unmaximize', () => {
         this.maxRestoreClass = 'window-maximize'
-      })
-
-      ipcRenderer.on('message', (event, text) => {
-        console.log('Updates', text)
       })
     },
     methods: {
@@ -70,6 +93,32 @@
       minimize() {
         this.w.minimize()
       },
+    },
+    computed: {
+      rate: function() {
+        return normalizeBytes(this.download.rate)
+      },
+      percent: function() {
+        return this.download.percent.toFixed(2)
+      },
+      transferred: function() {
+        return normalizeBytes(this.download.transferred)
+      },
+      total: function() {
+        return normalizeBytes(this.download.total)
+      },
+    },
+    mounted() {
+      ipcRenderer.on('download-progress', (event, data) => {
+        this.message = data.message
+        this.download.rate = data.bps
+        this.download.percent = data.percent
+        this.download.transferred = data.transferred
+        this.download.total = data.total
+      })
+      ipcRenderer.on('update-downloaded',  (event, data) => {
+        this.message = ''
+      })     
     }
   }
 </script>
@@ -128,6 +177,32 @@
       
       .window-close-bg:hover {
         background-color: red;
+      }
+    }
+  }
+
+  footer {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1rem;
+    background-color: #d6d6d6;
+    font-size: .75rem;
+
+    .msg {
+      flex: 1;
+    }
+
+    .progress {
+      flex: 2;
+      display: flex;
+
+      span {
+        flex: 1;
+        border-left: 1px solid #9d9d9d;
+        padding-left: 5px;
       }
     }
   }
