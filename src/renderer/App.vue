@@ -125,6 +125,11 @@
 
 <style lang="scss">
   .title-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    
     display: flex;
     justify-content: space-between;
     width: 100%;

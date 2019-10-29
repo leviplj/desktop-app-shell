@@ -15,7 +15,8 @@ if (config.url) {
 }
 
 let modules = [
-  require('./product.js'),
+  require('./product'),
+  require('./department'),
 ];
 
 // Initialize models

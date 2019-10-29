@@ -2,8 +2,16 @@
   <nav>
     <ul>
       <li>
+        <base-button class="link" @click.native="navigate('/')"
+          :disabled="is_curr_path('/')">Main</base-button>
+      </li>
+      <li>
         <base-button class="link" @click.native="navigate('/products')"
           :disabled="is_curr_path('/products')">Products</base-button>
+      </li>
+      <li>
+        <base-button class="link" @click.native="navigate('/departments')"
+          :disabled="is_curr_path('/departments')">Department</base-button>
       </li>
     </ul>
   </nav>

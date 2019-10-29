@@ -2,23 +2,21 @@
   <div>
     <div class="container">
       <div class="title">
-        <h1>Product List</h1>
-        <success-button @click.native="navigate('/products/add')">Add</success-button>
+        <h1>Department List</h1>
+        <success-button @click.native="navigate('/departments/add')">Add</success-button>
       </div>
       <input type="checkbox" name="" id="" v-model="exit"> Exit
       <table>
         <thead>
           <tr>
-            <th>Description</th>
-            <th>Price</th>
+            <th>Name</th>
             <th>Action</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(product, index) in pageOfItems">
-            <td>{{product.name}}</td>
-            <td>{{product.price}}</td>
-            <td><success-button @click.native="navigate(`/products/edit/${item.id}`)">Edit</success-button></td>
+          <tr v-for="item in pageOfItems">
+            <td>{{item.name}}</td>
+            <td><success-button @click.native="navigate(`/departments/edit/${item.id}`)">Edit</success-button></td>
           </tr>
         </tbody>
       </table>
@@ -34,7 +32,7 @@
   import { ipcRenderer } from 'electron'
 
   export default {
-    name: 'product-list',
+    name: 'department-list',
     mixins: [ NavMixin, ],
     components: { Paginator, SuccessButton },
     data() {
@@ -49,11 +47,11 @@
         this.pageOfItems = pageOfItems;
       },
       getItems: function(offset, limit) {        
-        return ipcRenderer.sendSync('products', {offset, limit}).slice()
+        return ipcRenderer.sendSync('departments', {offset, limit}).slice()
       }
     },
     created() {
-      this.itemsCount = ipcRenderer.sendSync('products/count')
+      this.itemsCount = ipcRenderer.sendSync('departments/count')
       console.log(this.itemsCount)
     },
     beforeRouteLeave (to, from, next) {
@@ -109,8 +107,6 @@
         
       }
     }
-
-
   }
 
 </style>

@@ -40,3 +40,43 @@ ipcMain.on('products/update', async (event, {id, name, price}) => {
 
   event.returnValue = result
 })
+
+ipcMain.on('departments', async (event, options) => {
+  let filter = options || {}
+  filter['order'] = [['id', 'ASC'],]
+  console.log('filter', filter)
+
+  event.returnValue = await db.department.findAll(filter).map(x => x.dataValues)
+})
+
+ipcMain.on('departments/count', async (event, id) => {
+  let result = await db.department.findAll({
+    attributes:[[sequelize.fn('count', sequelize.col('id')), 'count']],
+  })
+
+  event.returnValue = parseInt(result[0].dataValues.count)
+})
+
+ipcMain.on('departments/save', async (event, {name, price}) => {
+  let result = await new db.department({
+    name: name,
+    price: price,
+    createdAt: new Date(),
+    updatedAt: new Date()
+  }).save()
+
+  event.returnValue = result
+})
+
+ipcMain.on('departments/update', async (event, {id, name, price}) => {
+  let result = await db.department.update({
+    name: name,
+    price
+  },{
+    where: { 
+      id: id
+    }
+  })
+
+  event.returnValue = result
+})

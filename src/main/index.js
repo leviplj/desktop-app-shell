@@ -40,6 +40,13 @@ app.on('ready', () => {
         updatedAt: new Date()
       }})
     )
+    db.department.bulkCreate(
+      Array(200).fill(1).map((v, i) => v + i).map(v => {return {
+        name: `Department ${v}`,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }})
+    )
 
     autoUpdater.setWindow(mainWindow)
     autoUpdater.checkForUpdatesAndNotify()
