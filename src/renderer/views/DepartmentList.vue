@@ -46,13 +46,12 @@
       pageChange: function(pageOfItems) {
         this.pageOfItems = pageOfItems;
       },
-      getItems: function(offset, limit) {        
-        return ipcRenderer.sendSync('departments', {offset, limit}).slice()
+      getItems: function(offset, limit) {
+        return ipcRenderer.sendSync('departments', {offset, limit})
       }
     },
     created() {
       this.itemsCount = ipcRenderer.sendSync('departments/count')
-      console.log(this.itemsCount)
     },
     beforeRouteLeave (to, from, next) {
       if (this.exit) {

@@ -3,18 +3,20 @@ import { ipcMain } from 'electron'
 
 ipcMain.on('products', async (event, options) => {
   let filter = options || {}
+  filter['raw'] = true
   filter['order'] = [['id', 'ASC'],]
   console.log('filter', filter)
 
-  event.returnValue = await db.product.findAll(filter).map(x => x.dataValues)
+  event.returnValue = await db.product.findAll(filter)
 })
 
 ipcMain.on('products/count', async (event, id) => {
   let result = await db.product.findAll({
+    raw: true,
     attributes:[[sequelize.fn('count', sequelize.col('id')), 'count']],
   })
 
-  event.returnValue = parseInt(result[0].dataValues.count)
+  event.returnValue = parseInt(result[0].count)
 })
 
 ipcMain.on('products/save', async (event, {name, price}) => {
@@ -43,18 +45,20 @@ ipcMain.on('products/update', async (event, {id, name, price}) => {
 
 ipcMain.on('departments', async (event, options) => {
   let filter = options || {}
+  filter['raw'] = true
   filter['order'] = [['id', 'ASC'],]
   console.log('filter', filter)
 
-  event.returnValue = await db.department.findAll(filter).map(x => x.dataValues)
+  event.returnValue = await db.department.findAll(filter)
 })
 
 ipcMain.on('departments/count', async (event, id) => {
   let result = await db.department.findAll({
+    raw: true,
     attributes:[[sequelize.fn('count', sequelize.col('id')), 'count']],
   })
 
-  event.returnValue = parseInt(result[0].dataValues.count)
+  event.returnValue = parseInt(result[0].count)
 })
 
 ipcMain.on('departments/save', async (event, {name, price}) => {

@@ -2,7 +2,7 @@
   <div>
     <h1>Main Page</h1>
     <h2 @click="navigate('/products')">Products</h2>
-    <h2 @click="navigate('/department')">Departments</h2>
+    <h2 @click="navigate('/departments')">Departments</h2>
   </div>
 </template>
 

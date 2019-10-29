@@ -54,7 +54,6 @@
     },
     created() {
       this.itemsCount = ipcRenderer.sendSync('products/count')
-      console.log(this.itemsCount)
     },
     beforeRouteLeave (to, from, next) {
       if (this.exit) {
