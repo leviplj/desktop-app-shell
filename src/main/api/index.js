@@ -18,9 +18,25 @@ ipcMain.on('products/count', async (event, id) => {
 })
 
 ipcMain.on('products/save', async (event, {name, price}) => {
-  let result = await db.product.findAll({
-    attributes:[[sequelize.fn('count', sequelize.col('id')), 'count']],
+  let result = await new db.product({
+    name: name,
+    price: price,
+    createdAt: new Date(),
+    updatedAt: new Date()
+  }).save()
+
+  event.returnValue = result
+})
+
+ipcMain.on('products/update', async (event, {id, name, price}) => {
+  let result = await db.product.update({
+    name: name,
+    price
+  },{
+    where: { 
+      id: id
+    }
   })
 
-  event.returnValue = parseInt(result[0].dataValues.count)
+  event.returnValue = result
 })

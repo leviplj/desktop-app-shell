@@ -4,7 +4,7 @@
     <base-button class="link" @click.native="navigate('/products')">Back</base-button>
     <input type="checkbox" name="" id="" v-model="exit"> Exit
     <div class="container">
-        <input-field id="description" placeholder="Description" v-model="description" :klass="getErrors('price').length ? 'invalid' : ''"/>
+        <input-field id="name" placeholder="Name" v-model="name" :klass="getErrors('name').length ? 'invalid' : ''"/>
         <input-field id="price" placeholder="Price" v-model="price" :klass="getErrors('price').length ? 'invalid' : ''"/>
 
         <div class="form-control">
@@ -21,6 +21,7 @@
   import BaseButton from '@/components/button/BaseButton'
   import PrimaryButton from '@/components/button/PrimaryButton'
   import SuccessButton from '@/components/button/SuccessButton'
+import { ipcRenderer } from 'electron'
   
   export default {
     name: 'product-form',
@@ -28,10 +29,10 @@
     mixins: [ NavMixin ],
     data() {
       return { 
-        description: '',
+        name: '',
         price: 0,
         exit: false, 
-        errors: {description:'', price:'', exit:''},
+        errors: {name:'', price:'', exit:''},
         err: [],
       }
     },
@@ -41,8 +42,8 @@
       },
       save: function() {
         this.err = []
-        if (! this.description) {
-          this.err.push({'description': 'Required'})
+        if (! this.name) {
+          this.err.push({'name': 'Required'})
         }
 
         if (! this.price) {
@@ -54,28 +55,37 @@
         }
 
         if (this.$route.params.id !== undefined) {
-          let product = this.products.find((x) => x.id == this.$route.params.id)
-          product.description = this.description
-          product.price = this.price
+          let result = ipcRenderer.sendSync('products/update', {
+            id: this.$route.params.id,
+            name: this.name,
+            price: this.price
+          })
+          console.log('update', result)
         } else {
-          let id = this.products.length + 1
-          this.products.push({id: id, description: this.description, price: this.price})
+          let result = ipcRenderer.sendSync('products/save', {
+            name: this.name,
+            price: this.price
+          })
+          console.log('save', result)
         }
 
-        this.exit = true          
+        this.exit = true
         this.navigate('/products')
       },
       canLeave: function() {
         if (this.exit) return true
-        return this.description === '' &&
+        return this.name === '' &&
           (this.price === 0 || this.price === '')
       }
     },
-    created() {
+    mounted() {
         if (this.$route.params.id !== undefined) {
-          let product = this.products.find((x) => x.id == this.$route.params.id)
-          this.description = product.description
-          this.price = product.price
+          let result = ipcRenderer.sendSync('products', {
+            where: {id: this.$route.params.id}
+          })
+          
+          this.name = result[0].name
+          this.price = result[0].price
         }
     },
     beforeRouteLeave (to, from, next) {

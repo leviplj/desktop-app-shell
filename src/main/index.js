@@ -32,14 +32,14 @@ app.on('ready', () => {
   sequelize.sync().then(() => {
     createWindow()
 
-    Array(200).fill(1).map((v, i) => v + i).forEach(v=> {
-      new db.product({
+    db.product.bulkCreate(
+      Array(200).fill(1).map((v, i) => v + i).map(v => {return {
         name: `Product ${v}`,
         price: v,
         createdAt: new Date(),
         updatedAt: new Date()
-      }).save()
-    })
+      }})
+    )
 
     autoUpdater.setWindow(mainWindow)
     autoUpdater.checkForUpdatesAndNotify()
