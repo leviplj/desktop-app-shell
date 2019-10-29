@@ -15,9 +15,9 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(product, index) in pageOfItems">
-            <td>{{product.name}}</td>
-            <td>{{product.price}}</td>
+          <tr v-for="item in pageOfItems" :key="item.id">
+            <td>{{item.name}}</td>
+            <td>{{item.price}}</td>
             <td><success-button @click.native="navigate(`/products/edit/${item.id}`)">Edit</success-button></td>
           </tr>
         </tbody>
@@ -103,14 +103,6 @@
       vertical-align: top;
       border-top: 1px solid #dee2e6;
     }
-
-    tbody {
-      td {
-        
-      }
-    }
-
-
   }
 
 </style>

@@ -14,7 +14,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="item in pageOfItems">
+          <tr v-for="item in pageOfItems" :key="item.id">
             <td>{{item.name}}</td>
             <td><success-button @click.native="navigate(`/departments/edit/${item.id}`)">Edit</success-button></td>
           </tr>
@@ -100,12 +100,6 @@
       padding: .75rem;
       vertical-align: top;
       border-top: 1px solid #dee2e6;
-    }
-
-    tbody {
-      td {
-        
-      }
     }
   }
 
