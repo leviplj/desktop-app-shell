@@ -14,16 +14,13 @@ if (config.url) {
   sequelize = new Sequelize(config.database, config.username, config.password, config);
 }
 
-let modules = [
-  require('./product'),
-  require('./department'),
-];
-
 // Initialize models
-modules.forEach((module) => {
-  const model = module(sequelize, Sequelize, config);
+let req = require.context("./", false, /^(?!.*index.js)((.*\.(js\.*))[^.]*$)/)
+
+req.keys().forEach((module) => {
+  const model = req(module)(sequelize, Sequelize, config);
   db[model.name] = model;
-});  
+});
 
 Object.keys(db).forEach(modelName => {
   if (db[modelName].associate) {
