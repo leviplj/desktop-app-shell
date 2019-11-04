@@ -87,27 +87,4 @@
     justify-content: space-between;
     align-content: center;    
   }
-
-  table {    
-    width: 100%;
-    margin-bottom: 1rem;
-    color: #212529;
-    border-collapse: collapse;
-
-    thead {
-      th {
-        text-align: left;
-        vertical-align: bottom;
-        border-bottom: 2px solid #dee2e6;
-      }
-    }
-
-    td,
-    th {
-      padding: .75rem;
-      vertical-align: top;
-      border-top: 1px solid #dee2e6;
-    }
-  }
-
 </style>
