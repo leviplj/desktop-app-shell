@@ -27,3 +27,25 @@ body {
   padding-top: var(--title-bar-size);
   padding-bottom: 1rem;
 }
+
+table {    
+  width: 100%;
+  margin-bottom: 1rem;
+  color: #212529;
+  border-collapse: collapse;
+
+  thead {
+    th {
+      text-align: left;
+      vertical-align: bottom;
+      border-bottom: 2px solid #dee2e6;
+    }
+  }
+
+  td,
+  th {
+    padding: .75rem;
+    vertical-align: top;
+    border-top: 1px solid #dee2e6;
+  }
+}

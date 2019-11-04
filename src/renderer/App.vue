@@ -34,7 +34,7 @@
 </template>
 
 <script>
-  import '@/assets/css.css'
+  import '@/assets/css.scss'
 
   import NavMixin from '@/mixins/NavMixin'
   import SideMenu from '@/components/SideMenu'
