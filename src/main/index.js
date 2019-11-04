@@ -1,7 +1,7 @@
 import { app, BrowserWindow, dialog } from 'electron'
-import db, {sequelize} from './db/models/index'
-import './api/index'
+import {sequelize} from './db/models/index'
 import autoUpdater from './updater'
+import './api/index'
 
 const winURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`
@@ -28,25 +28,18 @@ let createWindow = ()  => {
   })
 }
 
+let loadFixtures = () => {
+  let req = require.context("./fixtures", false, /^(?!.*index.js)((.*\.(js\.*))[^.]*$)/)
+  req.keys().forEach(function(key){
+    req(key);
+  });
+}
+
 app.on('ready', () => {
   sequelize.sync().then(() => {
     createWindow()
 
-    db.product.bulkCreate(
-      Array(200).fill(1).map((v, i) => v + i).map(v => {return {
-        name: `Product ${v}`,
-        price: v,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }})
-    )
-    db.department.bulkCreate(
-      Array(200).fill(1).map((v, i) => v + i).map(v => {return {
-        name: `Department ${v}`,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }})
-    )
+    loadFixtures()
 
     autoUpdater.setWindow(mainWindow)
     autoUpdater.checkForUpdatesAndNotify()

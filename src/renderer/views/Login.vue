@@ -2,7 +2,7 @@
   <div>
     <h1>Login Form</h1>        
     <div class="container">
-      <form :submit.prevent="login">
+      <form v-on:submit.prevent="login">
         <input-field id="username" placeholder="Username" v-model="username"/>
         <input-field id="password" placeholder="Password" v-model="password"/>
         
@@ -23,6 +23,7 @@
   import InputField from '@/components/InputField'  
   import SuccessButton from '@/components/button/SuccessButton'
   import { ipcRenderer } from 'electron'
+  import crypto from 'crypto'
   
   export default {
     name: 'login-form',
@@ -47,12 +48,20 @@
           return
         }
 
-        if (this.username == 'foodinn' && this.password == '123') {
+        
+        ipcRenderer.invoke('user', {
+          where: {username: this.username, password: crypto.createHash('md5').update(this.password).digest("hex")}
+        }).then(result => {
+          if (! result) {
+            this.error = 'Sorry, these credentials are invalid.'
+            return 
+          }
+
           localStorage.setItem('jwt', `jwt-token`)
           this.navigate({name: 'Main'})
-        } else {
+        }).catch(err => {
           this.error = 'Sorry, these credentials are invalid.'
-        }
+        })
       },
     },
   }
