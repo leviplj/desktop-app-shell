@@ -11,6 +11,7 @@
           <tr>
             <th>Description</th>
             <th>Price</th>
+            <th>Department</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -18,6 +19,7 @@
           <tr v-for="item in pageOfItems" :key="item.id">
             <td>{{item.name}}</td>
             <td>{{item.price}}</td>
+            <td>{{item.department.name}}</td>
             <td><success-button @click.native="navigate(`/products/edit/${item.id}`)">Edit</success-button></td>
           </tr>
         </tbody>
@@ -48,8 +50,12 @@
       pageChange: function(pageOfItems) {
         this.pageOfItems = pageOfItems;
       },
-      getItems: function(offset, limit) {        
-        return ipcRenderer.sendSync('products', {offset, limit}).slice()
+      getItems: function(offset, limit) {
+        return ipcRenderer.invoke('products', {offset, limit})
+      },
+      departmentDesc: function(dep) {
+        console.log(`depar`)
+        return !! dep ? dep.name : ''
       }
     },
     created() {

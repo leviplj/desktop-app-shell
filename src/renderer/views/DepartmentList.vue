@@ -47,7 +47,7 @@
         this.pageOfItems = pageOfItems;
       },
       getItems: function(offset, limit) {
-        return ipcRenderer.sendSync('departments', {offset, limit})
+        return ipcRenderer.invoke('departments', {offset, limit})
       }
     },
     created() {

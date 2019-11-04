@@ -1,0 +1,106 @@
+<template>
+  <div class="selection-field">
+
+    <input :class="klass" type="text" placeholder=" " :id="id" :required="required" @input="$emit('input', $event.target.value)" :value="value">
+    
+    <select @input="$emit('input', $event.target.value)" :id="id+'-desc'">
+      <option value="0" :selected="!!value">-----</option>
+      <option v-for="option in options" :value="option.id" :key="option.id" :selected="value==option.id">
+        {{ option.name }}
+      </option>
+    </select>
+
+    <label for="">
+      <span class="placeholder">
+        {{placeholder}}
+      </span>
+    </label>
+  </div>
+</template>
+
+<script>
+export default {
+  props: ['placeholder', 'id', 'required', 'value', 'klass', 'options'],
+}
+</script>
+
+<style lang="scss">
+  .selection-field {
+    position: relative;
+    overflow: hidden;
+    height: 2rem;
+    margin: .25rem 0;
+    display: flex;
+
+    input {
+      height: 100%;
+      padding-top: 1rem;
+      border: none;
+      outline: none;
+      background: inherit;
+    }
+
+    input:nth-child(1) {
+      flex: 1;
+    }
+
+    select {
+      padding-left: .25rem;
+      border: none;
+      outline: none;
+      flex: 4;
+    }
+
+    input:nth-child(1) ~ label {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      border-bottom: 1px solid black;
+      pointer-events: none;
+      flex: 4;
+    }
+
+    label::after {
+      content: "";
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 100%;
+      border-bottom: 1.5px solid navy;
+      transform: translateX(-100%);
+      transition: all .3s ease;
+    }
+
+    .placeholder {
+      position: absolute;
+      bottom: 0;
+      color: #8b8b8b;
+      transition: all .3s ease;
+    }
+
+    input:nth-child(1):not(:placeholder-shown) ~ label::after,
+    input:focus ~ label::after,
+    input:nth-child(1).invalid ~ label::after {
+      transform: translateX(0);
+    }
+
+    input:nth-child(1):not(:placeholder-shown) ~ label .placeholder,
+    input:focus ~ label .placeholder,
+    input:nth-child(1).invalid ~ label .placeholder {
+      color: navy;
+      font-size: .8em;
+      font-weight: 700;
+      transform: translateY(-100%);
+    }
+
+    input:nth-child(1).invalid ~ label .placeholder {
+      color: red;
+    }
+
+    input:nth-child(1).invalid ~ label::after {
+      border-color: red;
+    }
+  }
+</style>

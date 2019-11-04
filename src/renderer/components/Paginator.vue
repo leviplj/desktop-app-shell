@@ -90,10 +90,10 @@ export default {
       this.pages = pages
       this.totalPages = totalPages
 
-      let result = this.$listeners.getItems(itemsFilter.offset, itemsFilter.limit)
-      global.result = result
-      
-      this.$emit('OnPageChange', result)
+      this.$listeners.getItems(itemsFilter.offset, itemsFilter.limit).then(result => {
+        global.result = result        
+        this.$emit('OnPageChange', result)
+      })
     }
   }
 

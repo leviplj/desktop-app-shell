@@ -6,6 +6,7 @@
     <div class="container">
         <input-field id="name" placeholder="Name" v-model="name" :klass="getErrors('name').length ? 'invalid' : ''"/>
         <input-field id="price" placeholder="Price" v-model="price" :klass="getErrors('price').length ? 'invalid' : ''"/>
+        <selection-field id="department" placeholder="Department" v-model="departmentId" :options="getDepartments()" :klass="getErrors('department').length ? 'invalid' : ''"/>
 
         <div class="form-control">
             <success-button @click.native="save()">Save</success-button>
@@ -18,19 +19,21 @@
 <script>
   import NavMixin from '@/mixins/NavMixin'
   import InputField from '@/components/InputField'
+  import SelectionField from '@/components/SelectionField'
   import BaseButton from '@/components/button/BaseButton'
   import PrimaryButton from '@/components/button/PrimaryButton'
   import SuccessButton from '@/components/button/SuccessButton'
-import { ipcRenderer } from 'electron'
+  import { ipcRenderer } from 'electron'
   
   export default {
     name: 'product-form',
-    components: { InputField, BaseButton, PrimaryButton, SuccessButton },
+    components: { InputField, SelectionField, BaseButton, PrimaryButton, SuccessButton },
     mixins: [ NavMixin ],
     data() {
       return { 
         name: '',
         price: 0,
+        departmentId: 0,
         exit: false, 
         errors: {name:'', price:'', exit:''},
         err: [],
@@ -58,7 +61,8 @@ import { ipcRenderer } from 'electron'
           let result = ipcRenderer.sendSync('products/update', {
             id: this.$route.params.id,
             name: this.name,
-            price: this.price
+            price: this.price,
+            departmentId: this.departmentId,
           })
           console.log('update', result)
         } else {
@@ -72,6 +76,12 @@ import { ipcRenderer } from 'electron'
         this.exit = true
         this.navigate('/products')
       },
+      getDepartments: function() {
+        return [
+          {id:1, name: `dep1`},
+          {id:2, name: `dep2`}
+        ]
+      },
       canLeave: function() {
         if (this.exit) return true
         return this.name === '' &&
@@ -80,12 +90,13 @@ import { ipcRenderer } from 'electron'
     },
     mounted() {
         if (this.$route.params.id !== undefined) {
-          let result = ipcRenderer.sendSync('products', {
+          ipcRenderer.invoke('products', {
             where: {id: this.$route.params.id}
+          }).then(result => {
+            this.name = result[0].name
+            this.price = result[0].price
+            this.departmentId = result[0].departmentId
           })
-          
-          this.name = result[0].name
-          this.price = result[0].price
         }
     },
     beforeRouteLeave (to, from, next) {

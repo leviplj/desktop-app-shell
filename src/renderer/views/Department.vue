@@ -73,11 +73,11 @@
     },
     mounted() {
         if (this.$route.params.id !== undefined) {
-          let result = ipcRenderer.sendSync('departments', {
+          ipcRenderer.invoke('departments', {
             where: {id: this.$route.params.id}
-          })
-          
-          this.name = result[0].name
+          }).then(result => {
+            this.name = result[0].name
+          })          
         }
     },
     beforeRouteLeave (to, from, next) {
