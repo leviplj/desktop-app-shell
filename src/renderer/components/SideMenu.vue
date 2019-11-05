@@ -1,17 +1,9 @@
 <template>
   <nav>
     <ul>
-      <li>
-        <base-button class="link" @click.native="navigate('/')"
-          :disabled="is_curr_path('/')">Main</base-button>
-      </li>
-      <li>
-        <base-button class="link" @click.native="navigate('/products')"
-          :disabled="is_curr_path('/products')">Products</base-button>
-      </li>
-      <li>
-        <base-button class="link" @click.native="navigate('/departments')"
-          :disabled="is_curr_path('/departments')">Department</base-button>
+      <li v-for="item in items" :key="item.path" v-if="item.visible">
+        <base-button class="link" @click.native="navigate(item.path)"
+          :disabled="is_curr_path(item.path)">{{ item.text }}</base-button>
       </li>
       <li>
         <base-button class="link" @click.native="logout()">Logout</base-button>
@@ -21,12 +13,39 @@
 </template>
 
 <script>
+  import EventBus from '@/components/event-bus'
   import BaseButton from '@/components/button/BaseButton'
-  import NavMixin from '@/mixins/NavMixin'
+  import NavMixin from '@/mixins/NavMixin'  
+  import { ipcRenderer } from 'electron'
 
   export default {
     components: { BaseButton },
     mixins: [ NavMixin, ],
+    data() {
+      return {
+        items: [{
+          path: '/',
+          text: 'Main',
+          permission: 'user_read',
+          visible: false,
+        },{
+          path: '/products',
+          text: 'Products',
+          permission: 'product_read',
+          visible: false,
+        },{
+          path: '/departments',
+          text: 'Departments',
+          permission: 'department_read',
+          visible: false,
+        },{
+          path: '/users',
+          text: 'Users',
+          permission: 'user_read',
+          visible: false,
+        },]
+      }
+    },
     methods: {
       is_curr_path: function(path) {
         return this.$route.path === path
@@ -35,6 +54,18 @@
         localStorage.removeItem('jwt', null)
         this.navigate('/login')
       }
+    },
+    mounted() {
+      EventBus.$on('refresh', () => {
+        console.log('Bus refresh')
+        
+        this.items.forEach(item => {
+          ipcRenderer.invoke('permission', localStorage.getItem('userId'), item.permission).then(res => {
+            console.log('re', res)
+            item.visible = res
+          })
+        })
+      })
     }
   }
 </script>

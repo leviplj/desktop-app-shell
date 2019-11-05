@@ -7,7 +7,7 @@
         <input-field id="password" placeholder="Password" v-model="password"/>
         
         <div class="form-control">
-            <success-button @click.native="login()">Login</success-button>            
+            <success-button>Login</success-button>            
         </div>
 
         <div class="error" v-if="error">
@@ -19,7 +19,9 @@
 </template>
 
 <script>
+  import EventBus from '@/components/event-bus'
   import NavMixin from '@/mixins/NavMixin'
+  import SideMenu from '@/components/SideMenu'
   import InputField from '@/components/InputField'  
   import SuccessButton from '@/components/button/SuccessButton'
   import { ipcRenderer } from 'electron'
@@ -48,19 +50,20 @@
           return
         }
 
-        
         ipcRenderer.invoke('user', {
           where: {username: this.username, password: crypto.createHash('md5').update(this.password).digest("hex")}
-        }).then(result => {
+        }).then(result => {          
           if (! result) {
             this.error = 'Sorry, these credentials are invalid.'
             return 
           }
 
           localStorage.setItem('jwt', `jwt-token`)
+          localStorage.setItem('userId', result.id)
+          EventBus.$emit('refresh')
           this.navigate({name: 'Main'})
         }).catch(err => {
-          this.error = 'Sorry, these credentials are invalid.'
+          this.error = 'Sorry, these credentials are invalid.' + err
         })
       },
     },

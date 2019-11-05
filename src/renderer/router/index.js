@@ -4,6 +4,7 @@ import Router from 'vue-router'
 import ProductRouter from '@/router/product'
 import DepartmentRouter from '@/router/department'
 import Register from '@/router/register'
+import User from '@/router/user'
 
 Vue.use(Router)
 
@@ -24,7 +25,8 @@ let routes = Array.prototype.concat(
   ],
   ProductRouter,
   DepartmentRouter,
-  Register
+  Register,
+  User,
 )
 
 let router = new Router({
@@ -32,7 +34,6 @@ let router = new Router({
 })
 
 router.beforeEach((to, from, next) => {
-  console.log(to)
   if(to.matched.some(record => record.meta.requiresAuth)) {
       if (localStorage.getItem('jwt') == null) {
           next({
