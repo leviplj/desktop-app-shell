@@ -3,7 +3,8 @@ import {sequelize} from './db/models/index'
 import autoUpdater from './updater'
 import './api/index'
 
-const winURL = process.env.NODE_ENV === 'development'
+const isDev = process.env.NODE_ENV === 'development'
+const winURL = isDev
   ? `http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`
   : `file://${__dirname}/index.html`
 
@@ -39,7 +40,8 @@ app.on('ready', () => {
   sequelize.sync().then(() => {
     createWindow()
 
-    loadFixtures()
+    if (isDev)
+      loadFixtures()
 
     autoUpdater.setWindow(mainWindow)
     autoUpdater.checkForUpdatesAndNotify()
