@@ -1,5 +1,5 @@
 <template>
-    <ul v-if="totalPages" class="pagination">
+    <ul v-if="totalPages > 1" class="pagination">
       <li class="page-item first" >
           <base-button class="page-link" @click.native="setPage(1)" :disabled="currentPage === 1? true: false"><<</base-button>
       </li>
