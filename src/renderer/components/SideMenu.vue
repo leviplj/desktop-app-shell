@@ -56,16 +56,15 @@
       }
     },
     mounted() {
-      EventBus.$on('refresh', () => {
-        console.log('Bus refresh')
-        
+      EventBus.$on('refresh', () => {        
         this.items.forEach(item => {
-          ipcRenderer.invoke('permission', localStorage.getItem('userId'), item.permission).then(res => {
-            console.log('re', res)
+          ipcRenderer.invoke('permissions/check', localStorage.getItem('userId'), item.permission).then(([res, err]) => {
             item.visible = res
           })
         })
       })
+
+      EventBus.$emit('refresh')
     }
   }
 </script>

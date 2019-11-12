@@ -79,6 +79,13 @@
       this.w.addListener('unmaximize', () => {
         this.maxRestoreClass = 'window-maximize'
       })
+
+      ipcRenderer.invoke('permissions/check', localStorage.getItem('userId'), 'system_login').then(([res, err]) => {
+        console.log('permission app start', res)
+        if (! res) {
+          this.navigate('/login')
+        }
+      })
     },
     methods: {
       close() {
