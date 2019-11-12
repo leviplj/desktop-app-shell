@@ -5,7 +5,6 @@
         <h1>Department List</h1>
         <success-button @click.native="navigate('/departments/add')">Add</success-button>
       </div>
-      <input type="checkbox" name="" id="" v-model="exit"> Exit
       <table>
         <thead>
           <tr>
@@ -37,8 +36,6 @@
     components: { Paginator, SuccessButton },
     data() {
       return {
-        itemsCount: 0,
-        exit: true,
         pageOfItems: [],
       }
     },
@@ -50,22 +47,11 @@
         return ipcRenderer.invoke('departments', {offset, limit})
       }
     },
-    created() {
-      this.itemsCount = ipcRenderer.sendSync('departments/count')
-    },
-    beforeRouteLeave (to, from, next) {
-      if (this.exit) {
-        next()
-      } else {
-        this.$dialog.confirm('Do you want to proceed?')
-          .then(function () {
-            next()
-          })
-          .catch(function () {
-            next(false)
-          });
+    computed: {
+      itemsCount: async function() {
+        return ipcRenderer.invoke('departments/count')
       }
-		},
+    },
   }
 </script>
 

@@ -3,8 +3,12 @@
     <h1>User Form</h1>
     <base-button class="link" @click.native="navigate('/users')">Back</base-button>    
     <div class="container">
-        <input-field id="username" placeholder="Username" v-model="username"/>
+        <input-field id="reg_number" placeholder="Reg. No." v-model="reg_number" :readonly="true"/>
+        <input-field id="username" placeholder="Username" v-model="username" :readonly="$route.params.id? true: false"/>
         <input-field id="password" placeholder="Password" v-model="password"/>
+        <input type="checkbox" v-model="is_super_user" id="is_super_user">Super User<br>
+        <hr>
+        <span>Permissions</span><br>
         <div v-for="item in permission_list" :key="item.id">
         <input type="checkbox" v-model="permissions" id="permissions" :value="item.id">{{item.permission}}<br>
         </div>
@@ -38,6 +42,8 @@
       return { 
         username: '',
         password: '',
+        reg_number: '',
+        is_super_user: false,
         permissions: [],
         permission_list: [],
         exit: false,
@@ -52,16 +58,11 @@
         }
 
         if (this.$route.params.id !== undefined) {
-          // let result = ipcRenderer.sendSync('users/update', {
-          //   id: this.$route.params.id,
-          //   password: this.password,
-          //   permissions: this.permissions,
-          // })
-
           ipcRenderer.invoke('users/update', localStorage.getItem('userId'), {
             id: this.$route.params.id,
             username: this.username,
             password: this.password,
+            is_super_user: this.is_super_user,
             permissions: this.permissions,
           }).then(result => {
             console.log('update', result)
@@ -80,6 +81,7 @@
           ipcRenderer.invoke('users/save', localStorage.getItem('userId'), {
             username: this.username,
             password: this.password,
+            is_super_user: this.is_super_user,
             permissions: this.permissions,
           }).then(result => {
             console.log('save', result)
@@ -103,21 +105,20 @@
       }
     },
     mounted() {
-        if (this.$route.params.id !== undefined) {
-          ipcRenderer.invoke('user', {
-            where: {id: this.$route.params.id}
-          }).then(result => {
-            global.user = result
-            this.username = result.username
-            this.permissions = result.permissions
-          })
-        }
+      ipcRenderer.invoke('permissions').then(result => {
+        this.permission_list = result
+      })
 
-        if (this.$route.params.id !== undefined) {
-          ipcRenderer.invoke('permissions').then(result => {
-            this.permission_list = result
-          })
-        }
+      if (this.$route.params.id !== undefined) {
+        ipcRenderer.invoke('user', {
+          where: {id: this.$route.params.id}
+        }).then(result => {          
+          this.username = result.username
+          this.permissions = result.permissions
+          this.reg_number = result.reg_number
+          this.is_super_user = result.is_super_user
+        })
+      }
     },
     beforeRouteLeave (to, from, next) {
       if (this.canLeave()) {

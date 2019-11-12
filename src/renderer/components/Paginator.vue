@@ -58,7 +58,7 @@ export default {
   components: { BaseButton },
   props: {
     itemsCount: {
-        type: Number,
+        type: Promise,
         required: true
     },
     initialPage: {
@@ -86,14 +86,18 @@ export default {
     setPage: function(page) {
       this.currentPage = page
 
-      const {pages, totalPages, itemsFilter} = paginate(page, this.pageSize, this.itemsCount)
-      this.pages = pages
-      this.totalPages = totalPages
+      this.itemsCount.then(count => {
+        const {pages, totalPages, itemsFilter} = paginate(page, this.pageSize, count)
+        this.pages = pages
+        this.totalPages = totalPages
 
-      this.$listeners.getItems(itemsFilter.offset, itemsFilter.limit).then(result => {
-        global.result = result        
-        this.$emit('OnPageChange', result)
+        this.$listeners.getItems(itemsFilter.offset, itemsFilter.limit).then(result => {
+          global.result = result        
+          this.$emit('OnPageChange', result)
+        })
       })
+
+      
     }
   }
 

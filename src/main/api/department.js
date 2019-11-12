@@ -9,13 +9,15 @@ ipcMain.handle('departments', (event, options) => {
   return db.department.findAll(filter)
 })
 
-ipcMain.on('departments/count', async (event, id) => {
-  let result = await db.department.findAll({
-    raw: true,
-    attributes:[[sequelize.fn('count', sequelize.col('id')), 'count']],
+ipcMain.handle('departments/count', async (event, id) => {
+  return new Promise((resolve) =>{
+    db.department.findAll({
+      raw: true,
+      attributes:[[sequelize.fn('count', sequelize.col('id')), 'count']],
+    }).then(result => {
+      resolve(parseInt(result[0].count))
+    })
   })
-
-  event.returnValue = parseInt(result[0].count)
 })
 
 ipcMain.on('departments/save', async (event, {name, price}) => {

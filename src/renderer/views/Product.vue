@@ -4,9 +4,9 @@
     <base-button class="link" @click.native="navigate('/products')">Back</base-button>
     <input type="checkbox" name="" id="" v-model="exit"> Exit
     <div class="container">
-        <input-field id="name" placeholder="Name" v-model="name" :klass="getErrors('name').length ? 'invalid' : ''"/>
-        <input-field id="price" placeholder="Price" v-model="price" :klass="getErrors('price').length ? 'invalid' : ''"/>
-        <selection-field id="department" placeholder="Department" v-model="departmentId" :options="getDepartments()" :klass="getErrors('department').length ? 'invalid' : ''"/>
+        <input-field id="name" placeholder="Name" v-model="name" :innerClass="getErrors('name').length ? 'invalid' : ''"/>
+        <input-field id="price" placeholder="Price" v-model="price" :innerClass="getErrors('price').length ? 'invalid' : ''"/>
+        <selection-field id="department" placeholder="Department" v-model="departmentId" :options="department_list" :innerClass="getErrors('department').length ? 'invalid' : ''"/>
 
         <div class="form-control">
             <success-button @click.native="save()">Save</success-button>
@@ -37,6 +37,7 @@
         exit: false, 
         errors: {name:'', price:'', exit:''},
         err: [],
+        department_list: [],
       }
     },
     methods: {
@@ -76,12 +77,6 @@
         this.exit = true
         this.navigate('/products')
       },
-      getDepartments: function() {
-        return [
-          {id:1, name: `dep1`},
-          {id:2, name: `dep2`}
-        ]
-      },
       canLeave: function() {
         if (this.exit) return true
         return this.name === '' &&
@@ -89,15 +84,20 @@
       }
     },
     mounted() {
-        if (this.$route.params.id !== undefined) {
-          ipcRenderer.invoke('products', {
-            where: {id: this.$route.params.id}
-          }).then(result => {
-            this.name = result[0].name
-            this.price = result[0].price
-            this.departmentId = result[0].departmentId
-          })
-        }
+      if (this.$route.params.id !== undefined) {
+        ipcRenderer.invoke('products', {
+          where: {id: this.$route.params.id}
+        }).then(result => {
+          this.name = result[0].name
+          this.price = result[0].price
+          this.departmentId = result[0].departmentId
+        })
+      }
+
+      ipcRenderer.invoke('departments').then(result => {
+        global.result = result
+        this.department_list = result
+      })      
     },
     beforeRouteLeave (to, from, next) {
       if (this.canLeave()) {

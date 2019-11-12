@@ -4,7 +4,7 @@
     <base-button class="link" @click.native="navigate('/departments')">Back</base-button>
     <input type="checkbox" name="" id="" v-model="exit"> Exit
     <div class="container">
-        <input-field id="name" placeholder="Name" v-model="name" :klass="getErrors('name').length ? 'invalid' : ''"/>
+        <input-field id="name" placeholder="Name" v-model="name" :innerClass="getErrors('name').length ? 'invalid' : ''"/>
 
         <div class="form-control">
             <success-button @click.native="save()">Save</success-button>
