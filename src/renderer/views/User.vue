@@ -1,7 +1,6 @@
 <template>
   <div>
     <h1>User Form</h1>
-    <base-button class="link" @click.native="navigate('/users')">Back</base-button>    
     <div class="container">
         <input-field id="reg_number" placeholder="Reg. No." v-model="reg_number" :readonly="true"/>
         <input-field id="username" placeholder="Username" v-model="username" :readonly="$route.params.id? true: false"/>
@@ -29,13 +28,12 @@
 <script>
   import NavMixin from '@/mixins/NavMixin'
   import InputField from '@/components/InputField'
-  import SelectionField from '@/components/SelectionField'
   import BaseButton from '@/components/button/BaseButton'
   import { ipcRenderer } from 'electron'
   
   export default {
     name: 'user-form',
-    components: { InputField, SelectionField, BaseButton },
+    components: { InputField, BaseButton },
     mixins: [ NavMixin ],
     data() {
       return {
@@ -68,52 +66,64 @@
           this.is_super_user = user.is_super_user
         })
       },
-      save: function() {
-        this.err = []
-        if (! this.username) {
-          this.err.push('Username is required')
+      create: function() {
+        ipcRenderer.invoke('users/save', localStorage.getItem('userId'), {
+          username: this.username,
+          password: this.password,
+          is_super_user: this.is_super_user,
+          permissions: this.permissions,
+        }).then(([user, err]) => {
+          if (err) 
+            return this.errors = [err]
+          
+          this.exit = true
+          this.navigate({path: '/users', query: { id: user.id, reg_number: user.reg_number }})
+        })
+        .catch(err => {
+          console.log('Unexpected error', err.message)
+        })
+      },
+      update: function() {
+        ipcRenderer.invoke('users/update', localStorage.getItem('userId'), {
+          id: this.$route.params.id,
+          username: this.username,
+          password: this.password,
+          is_super_user: this.is_super_user,
+          permissions: this.permissions,
+        }).then(([user, err]) => {
+          console.log('update', user)
+          if (err) {
+            this.errors = [err]
+            return 
+          }
+          
+          this.exit = true
+          this.navigate('/users')
+        })
+        .catch(err => {
+          console.log('Unexpected error', err.message)
+        })
+      },
+      validate: function() {
+        this.errors = []
+        if (! this.name) {
+          this.errors.push('Name is required')
         }
+        console.log(this.errors)
 
-        if (this.$route.params.id !== undefined) {
-          ipcRenderer.invoke('users/update', localStorage.getItem('userId'), {
-            id: this.$route.params.id,
-            username: this.username,
-            password: this.password,
-            is_super_user: this.is_super_user,
-            permissions: this.permissions,
-          }).then(result => {
-            console.log('update', result)
-            if (result.err) {
-              this.errors = [result.err]
-              return 
-            }
-            
-            this.exit = true
-            this.navigate('/users')
-          })
-          .catch(err => {
-            console.log('Unexpected error', err.message)
-          })
-        } else {
-          ipcRenderer.invoke('users/save', localStorage.getItem('userId'), {
-            username: this.username,
-            password: this.password,
-            is_super_user: this.is_super_user,
-            permissions: this.permissions,
-          }).then(([user, err]) => {
-            console.log('save', [user, err])
-            if (err) {
-              this.errors = [err]
-              return 
-            }
-            
-            this.exit = true
-            this.navigate({path: '/users', query: { id: user.id, reg_number: user.reg_number }})
-          })
-          .catch(err => {
-            console.log('Unexpected error', err.message)
-          })
-        }
+        if (!! this.errors.length)
+          return false
+
+        return true
+      },
+      save: function() {
+        if (! this.validate())
+          return        
+
+        if (this.$route.params.id !== undefined) 
+          this.update()
+        else
+          this.create()
       },
       confirmRemoval: function() {
         this.$dialog.confirm('Confirm deleting this user?')

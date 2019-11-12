@@ -1,5 +1,5 @@
 <template>
-    <ul v-if="totalPages > 1" class="pagination">
+    <ul v-if="totalPages>1" class="pagination">
       <li class="page-item first" >
           <base-button class="page-link" @click.native="setPage(1)" :disabled="currentPage === 1? true: false"><<</base-button>
       </li>
@@ -86,14 +86,14 @@ export default {
     setPage: function(page) {
       this.currentPage = page
 
-      this.itemsCount.then(count => {
+      this.itemsCount.then(([count, err]) => {
+        console.log(count, err)
         const {pages, totalPages, itemsFilter} = paginate(page, this.pageSize, count)
         this.pages = pages
         this.totalPages = totalPages
 
-        this.$listeners.getItems(itemsFilter.offset, itemsFilter.limit).then(result => {
-          global.result = result        
-          this.$emit('OnPageChange', result)
+        this.$listeners.getItems(itemsFilter.offset, itemsFilter.limit).then(([items, err]) => {
+          this.$emit('OnPageChange', items)
         })
       })
 

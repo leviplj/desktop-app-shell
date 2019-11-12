@@ -4,12 +4,16 @@
     <base-button class="link" @click.native="navigate('/departments')">Back</base-button>
     <input type="checkbox" name="" id="" v-model="exit"> Exit
     <div class="container">
-        <input-field id="name" placeholder="Name" v-model="name" :innerClass="getErrors('name').length ? 'invalid' : ''"/>
+      <input-field id="name" placeholder="Name" v-model="name"/>
 
-        <div class="form-control">
-            <success-button @click.native="save()">Save</success-button>
-            <base-button class="link" @click.native="navigate('/departments')">Cancel</base-button>
-        </div>
+      <div class="form-control">
+          <success-button @click.native="save()">Save</success-button>
+          <base-button class="link" @click.native="navigate('/departments')">Cancel</base-button>
+      </div>
+
+      <div v-if="errors">
+        <span v-for="error in errors" :key="error">{{error}}</span>
+      </div>
     </div>
   </div>
 </template>
@@ -31,39 +35,65 @@
         name: '',
         price: 0,
         exit: false, 
-        errors: {name:'', price:'', exit:''},
-        err: [],
+        errors: [],
       }
     },
     methods: {
-      getErrors: function(field) {
-        return this.err.filter(x => field in x)
+      setId: function(id) {
+        this.id = id
+        
+        ipcRenderer.invoke('department', {
+          where: {id: this.id}
+        }).then(([department, err])=> {
+          if (err) {
+            this.errors = [err]
+            return
+          }
+
+          this.name = department.name
+        })
+      },
+      create: function() {
+        ipcRenderer.invoke('departments/save', localStorage.getItem('userId'), {
+          name: this.name,
+        }).then(([department, err]) => {
+          if (err) 
+            return this.errors = [err]
+
+          this.exit = true
+          this.navigate({path: '/departments', query: { id: department.id }})
+        })
+      },
+      update: function() {
+        ipcRenderer.invoke('departments/update', localStorage.getItem('userId'), {
+          id: this.$route.params.id,
+          name: this.name,
+        }).then(([affectedRows, err]) => {
+          if (err)
+            return this.errors = [err]
+
+          this.exit = true
+          this.navigate('/departments')
+        })
+      },
+      validate: function() {
+        this.errors = []
+        if (! this.name)
+          this.errors.push('Name is required')
+
+        if (!! this.errors.length)
+          return false
+
+        return true
       },
       save: function() {
-        this.err = []
-        if (! this.name) {
-          this.err.push({'name': 'Required'})
-        }
+        if (! this.validate()) 
+          return 
 
-        if (!! this.err.length) {
-          return
-        }
-
-        if (this.$route.params.id !== undefined) {
-          let result = ipcRenderer.sendSync('departments/update', {
-            id: this.$route.params.id,
-            name: this.name,
-          })
-          console.log('update', result)
-        } else {
-          let result = ipcRenderer.sendSync('departments/save', {
-            name: this.name,
-          })
-          console.log('save', result)
-        }
-
-        this.exit = true
-        this.navigate('/departments')
+        if (this.$route.params.id !== undefined) 
+          this.update()
+        else
+          this.create()
       },
       canLeave: function() {
         if (this.exit) return true
@@ -72,13 +102,9 @@
       }
     },
     mounted() {
-        if (this.$route.params.id !== undefined) {
-          ipcRenderer.invoke('departments', {
-            where: {id: this.$route.params.id}
-          }).then(result => {
-            this.name = result[0].name
-          })          
-        }
+      if (this.$route.params.id !== undefined) {
+        this.setId(this.$route.params.id)
+      }
     },
     beforeRouteLeave (to, from, next) {
       if (this.canLeave()) {

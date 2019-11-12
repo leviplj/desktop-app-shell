@@ -36,6 +36,7 @@
 <script>
   import '@/assets/css.scss'
 
+  import EventBus from '@/components/event-bus'
   import NavMixin from '@/mixins/NavMixin'
   import SideMenu from '@/components/SideMenu'
   import { ipcRenderer } from 'electron'
@@ -79,6 +80,9 @@
       })
       this.w.addListener('unmaximize', () => {
         this.maxRestoreClass = 'window-maximize'
+      })
+      this.w.addListener('resize', () => {
+        EventBus.$emit('resize')
       })
 
       ipcRenderer.invoke('permissions/check', localStorage.getItem('userId'), 'system_login').then(([res, err]) => {

@@ -49,3 +49,19 @@ table {
     border-top: 1px solid #dee2e6;
   }
 }
+
+.recent {
+  animation: recent-item 3s;
+}
+
+@keyframes recent-item {
+  0% {
+    background-color: #7fe294;
+  } 
+  75% {
+    background-color: #7fe294;
+  }
+  100% {
+    background-color: inherit;
+  }   
+}

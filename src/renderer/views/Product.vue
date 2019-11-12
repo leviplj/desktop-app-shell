@@ -4,15 +4,16 @@
     <base-button class="link" @click.native="navigate('/products')">Back</base-button>
     <input type="checkbox" name="" id="" v-model="exit"> Exit
     <div class="container">
-        <input-field id="name" placeholder="Name" v-model="name" :innerClass="getErrors('name').length ? 'invalid' : ''"/>
-        <input-field id="price" placeholder="Price" v-model="price" :innerClass="getErrors('price').length ? 'invalid' : ''"/>
-        <selection-field id="department" placeholder="Department" v-model="departmentId" :options="department_list" :innerClass="getErrors('department').length ? 'invalid' : ''"/>
+        <input-field id="name" placeholder="Name" v-model="name"/>
+
+        <input-field id="price" placeholder="Price" v-model="price"/>
+        <selection-field id="department" placeholder="Department" v-model="departmentId" :options="department_list"/>
 
         <div class="form-control">
             <success-button @click.native="save()">Save</success-button>
             <base-button class="link" @click.native="navigate('/products')">Cancel</base-button>
         </div>
-    </div>
+    </div>    
   </div>
 </template>
 
@@ -43,6 +44,9 @@
     methods: {
       getErrors: function(field) {
         return this.err.filter(x => field in x)
+      },
+      selectDep: function(id) {
+        this.departmentId = id
       },
       save: function() {
         this.err = []
@@ -94,9 +98,12 @@
         })
       }
 
-      ipcRenderer.invoke('departments').then(result => {
-        global.result = result
-        this.department_list = result
+      ipcRenderer.invoke('departments', localStorage.getItem('userId'))
+      .then(([departments, err]) => {
+        if (err) 
+          return console.log(err)
+
+        this.department_list = departments
       })      
     },
     beforeRouteLeave (to, from, next) {

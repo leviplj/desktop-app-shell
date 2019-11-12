@@ -9,12 +9,14 @@
         <thead>
           <tr>
             <th>Username</th>
+            <th>Reg. No.</th>
             <th>Action</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="item in pageOfItems" :key="item.id" :class="$route.query.id == item.id? 'recent': ''">
             <td>{{item.username}}</td>
+            <td>{{item.reg_number}}</td>
             <td><base-button type="success" @click.native="navigate(`/users/edit/${item.id}`)">View</base-button></td>
           </tr>
         </tbody>
@@ -49,7 +51,7 @@
     },
     computed: {
       itemsCount: async function() {
-        return ipcRenderer.invoke('users/count')
+        return ipcRenderer.invoke('users/count', localStorage.getItem('userId'))
       }
     }
   }
@@ -64,21 +66,5 @@
     display: flex;
     justify-content: space-between;
     align-content: center;    
-  }
-
-  .recent {
-    animation: recent-item 3s;
-  }
-
-  @keyframes recent-item {
-    0% {
-      background-color: #7fe294;
-    } 
-    75% {
-      background-color: #7fe294;
-    }
-    100% {
-      background-color: inheri;
-    }   
   }
 </style>

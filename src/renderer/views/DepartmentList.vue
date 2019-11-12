@@ -13,7 +13,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="item in pageOfItems" :key="item.id">
+          <tr v-for="item in pageOfItems" :key="item.id" :class="$route.query.id == item.id? 'recent': ''">
             <td>{{item.name}}</td>
             <td><success-button @click.native="navigate(`/departments/edit/${item.id}`)">Edit</success-button></td>
           </tr>
@@ -44,12 +44,12 @@
         this.pageOfItems = pageOfItems;
       },
       getItems: function(offset, limit) {
-        return ipcRenderer.invoke('departments', {offset, limit})
+        return ipcRenderer.invoke('departments', localStorage.getItem('userId'), {offset, limit})
       }
     },
     computed: {
       itemsCount: async function() {
-        return ipcRenderer.invoke('departments/count')
+        return ipcRenderer.invoke('departments/count', localStorage.getItem('userId'))
       }
     },
   }

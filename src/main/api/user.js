@@ -2,6 +2,8 @@ import db, { sequelize } from '../db/models/index'
 import { ipcMain } from 'electron'
 import crypto from 'crypto'
 
+import { user as permission } from '$common/permissions'
+
 ipcMain.handle('user', async (_, options) => {
   let filter = options || {}
   filter['raw'] = true
@@ -40,7 +42,7 @@ ipcMain.handle('users/login', async (_, options) => {
 
 ipcMain.handle('users', (_, userId, options) => {
   return new Promise((resolve, reject) =>{
-    db.user.hasPermission(userId, 'user_read').then(ok => {
+    db.user.hasPermission(userId, permission.read).then(ok => {
       let filter = options || {}
       filter['raw'] = true
       filter['order'] = [['username', 'ASC'],]
@@ -56,7 +58,7 @@ ipcMain.handle('users', (_, userId, options) => {
 
 ipcMain.handle('users/count', async (event, userId) => {
   return new Promise((resolve, reject) =>{
-    db.user.hasPermission(userId, 'user_read').then(ok => {
+    db.user.hasPermission(userId, permission.read).then(ok => {
       db.user.findAll({
         raw: true,
         attributes:[[sequelize.fn('count', sequelize.col('id')), 'count']],
@@ -71,7 +73,7 @@ ipcMain.handle('users/count', async (event, userId) => {
 
 ipcMain.handle('users/save', (_, userId, {username, password, is_super_user, permissions}) => {
   return new Promise((resolve) => {
-    db.user.hasPermission(userId, 'user_create').then(ok => {
+    db.user.hasPermission(userId, permission.create).then(ok => {
       db.user.create({
         username,
         password: crypto.createHash('md5').update(password).digest("hex"),
@@ -91,7 +93,10 @@ ipcMain.handle('users/save', (_, userId, {username, password, is_super_user, per
 
 ipcMain.handle('users/update', (_, userId, {id, password, is_super_user, permissions}) => {
   return new Promise((resolve) => {
-    db.user.hasPermission(userId, 'user_update').then(ok => {
+    if (id == 1)
+      is_super_user = true
+
+    db.user.hasPermission(userId, permission.update).then(ok => {
       db.user.findOne({where: { id }}).then(user => {
         if (!! password)        
           user.password = crypto.createHash('md5').update(password).digest("hex")
@@ -112,12 +117,13 @@ ipcMain.handle('users/update', (_, userId, {id, password, is_super_user, permiss
 
 ipcMain.handle('users/delete', (_, userId, {id}) => {
   return new Promise((resolve) => {
-    db.user.hasPermission(userId, 'user_delete').then(ok => {
+    if (id == 1)
+      return resolve([null, `Can't delete master user`])
+
+    db.user.hasPermission(userId, permission.delete).then(ok => {
 
       db.user.destroy({
-        where: {
-          id
-        }
+        where: { id }
       }).then(affectedRows => {
         return resolve([affectedRows])
       })

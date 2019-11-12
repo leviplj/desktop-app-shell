@@ -48,7 +48,7 @@
         this.pageOfItems = pageOfItems;
       },
       getItems: function(offset, limit) {
-        return ipcRenderer.invoke('products', {offset, limit})
+        return ipcRenderer.invoke('products', localStorage.getItem('userId'), {offset, limit})
       },
       departmentDesc: function(dep) {
         console.log(`depar`)
