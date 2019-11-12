@@ -1,3 +1,7 @@
+let sys = {
+  login: 'system_login',
+}
+
 let user = {
   create: 'user_create',
   read: 'user_read',
@@ -22,6 +26,7 @@ let department = {
 export { user, product, department }
 
 export default {
+  sys,
   user,
   product,
   department
