@@ -5,7 +5,7 @@
     <div class="container">
         <input-field id="reg_number" placeholder="Reg. No." v-model="reg_number" :readonly="true"/>
         <input-field id="username" placeholder="Username" v-model="username" :readonly="$route.params.id? true: false"/>
-        <input-field id="password" placeholder="Password" v-model="password"/>
+        <input-field id="password" placeholder="Password" type="password" v-model="password"/>
         <input type="checkbox" v-model="is_super_user" id="is_super_user">Super User<br>
         <hr>
         <span>Permissions</span><br>
@@ -14,8 +14,9 @@
         </div>
 
         <div class="form-control">
-            <success-button @click.native="save()">Save</success-button>
-            <base-button class="link" @click.native="navigate('/users')">Cancel</base-button>
+          <base-button type="success" @click.native="save()">Save</base-button>
+          <base-button v-if="id" type="primary" @click.native="confirmRemoval()">Delete</base-button>
+          <base-button type="link" @click.native="navigate('/users')">Cancel</base-button>
         </div>
 
         <div v-if="errors">
@@ -30,16 +31,15 @@
   import InputField from '@/components/InputField'
   import SelectionField from '@/components/SelectionField'
   import BaseButton from '@/components/button/BaseButton'
-  import PrimaryButton from '@/components/button/PrimaryButton'
-  import SuccessButton from '@/components/button/SuccessButton'
   import { ipcRenderer } from 'electron'
   
   export default {
     name: 'user-form',
-    components: { InputField, SelectionField, BaseButton, PrimaryButton, SuccessButton },
+    components: { InputField, SelectionField, BaseButton },
     mixins: [ NavMixin ],
     data() {
-      return { 
+      return {
+        id: null,
         username: '',
         password: '',
         reg_number: '',
@@ -51,6 +51,23 @@
       }
     },
     methods: {
+      setId: function(id) {
+        this.id = id
+        
+        ipcRenderer.invoke('user', {
+          where: {id: this.id}
+        }).then(([user, err])=> {
+          if (err) {
+            this.errors = [err]
+            return
+          }
+
+          this.username = user.username
+          this.permissions = user.permissions
+          this.reg_number = user.reg_number
+          this.is_super_user = user.is_super_user
+        })
+      },
       save: function() {
         this.err = []
         if (! this.username) {
@@ -83,41 +100,57 @@
             password: this.password,
             is_super_user: this.is_super_user,
             permissions: this.permissions,
-          }).then(result => {
-            console.log('save', result)
-            if (result.err) {
-              this.errors = [result.err]
+          }).then(([user, err]) => {
+            console.log('save', [user, err])
+            if (err) {
+              this.errors = [err]
               return 
             }
             
             this.exit = true
-            this.navigate('/users')
+            this.navigate({path: '/users', query: { id: user.id, reg_number: user.reg_number }})
           })
           .catch(err => {
             console.log('Unexpected error', err.message)
           })
         }
       },
+      confirmRemoval: function() {
+        this.$dialog.confirm('Confirm deleting this user?')
+          .then(() => {
+            this.remove()
+          })
+      },
+      remove: function() {
+        ipcRenderer.invoke('users/delete', localStorage.getItem('userId'), {
+          id: this.$route.params.id,
+        }).then(([affectedRows, err]) => {
+          console.log('removed', [affectedRows, err])
+          if (err) {
+            this.errors = [err]
+            return 
+          }
+        
+          this.exit = true
+          this.navigate({path: '/users'})
+        })
+        .catch(err => {
+          console.log('Unexpected error', err.message)
+        })
+      },
       canLeave: function() {
         if (this.exit) 
           return true
         return this.username === ''
       }
-    },
+    }, 
     mounted() {
       ipcRenderer.invoke('permissions').then(result => {
         this.permission_list = result
       })
 
       if (this.$route.params.id !== undefined) {
-        ipcRenderer.invoke('user', {
-          where: {id: this.$route.params.id}
-        }).then(result => {          
-          this.username = result.username
-          this.permissions = result.permissions
-          this.reg_number = result.reg_number
-          this.is_super_user = result.is_super_user
-        })
+        this.setId(this.$route.params.id)
       }
     },
     beforeRouteLeave (to, from, next) {
@@ -130,7 +163,7 @@
           })
           .catch(function () {
             next(false)
-          });
+          })
       }
 		},
   }
@@ -141,9 +174,5 @@
     display: flex;
     justify-content: space-around;
     align-content: center;
-
-    button {
-
-    }
  }
 </style>

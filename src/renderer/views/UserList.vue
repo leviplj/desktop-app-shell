@@ -3,7 +3,7 @@
     <div class="container">
       <div class="title">
         <h1>User List</h1>
-        <success-button @click.native="navigate('/users/add')">Add</success-button>
+        <base-button type="success" @click.native="navigate('/users/add')">Add</base-button>
       </div>
       <table>
         <thead>
@@ -13,9 +13,9 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="item in pageOfItems" :key="item.id">
+          <tr v-for="item in pageOfItems" :key="item.id" :class="$route.query.id == item.id? 'recent': ''">
             <td>{{item.username}}</td>
-            <td><success-button @click.native="navigate(`/users/edit/${item.id}`)">Edit</success-button></td>
+            <td><base-button type="success" @click.native="navigate(`/users/edit/${item.id}`)">View</base-button></td>
           </tr>
         </tbody>
       </table>
@@ -27,13 +27,13 @@
 <script>
   import NavMixin from '@/mixins/NavMixin'
   import Paginator from '@/components/Paginator'
-  import SuccessButton from '@/components/button/SuccessButton'
+  import BaseButton from '@/components/button/BaseButton'
   import { ipcRenderer } from 'electron'
 
   export default {
     name: 'user-list',
     mixins: [ NavMixin, ],
-    components: { Paginator, SuccessButton },
+    components: { Paginator, BaseButton },
     data() {
       return {
         pageOfItems: [],
@@ -64,5 +64,21 @@
     display: flex;
     justify-content: space-between;
     align-content: center;    
+  }
+
+  .recent {
+    animation: recent-item 3s;
+  }
+
+  @keyframes recent-item {
+    0% {
+      background-color: #7fe294;
+    } 
+    75% {
+      background-color: #7fe294;
+    }
+    100% {
+      background-color: inheri;
+    }   
   }
 </style>

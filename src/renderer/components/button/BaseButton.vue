@@ -1,12 +1,20 @@
 <template>
-  <button class="btn">
+  <button class="btn" :class="type">
       <slot></slot>
   </button>
 </template>
 
 <script>
 export default {
-  props: ['placeholder', 'id', 'required'],
+  props: {
+    type: {
+      type: String,
+      default: '',
+      validator: function(val) {
+        return ['', 'link', 'primary', 'success'].indexOf(val) !== -1
+      }
+    },
+  },
 }
 </script>
 
