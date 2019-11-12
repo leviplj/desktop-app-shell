@@ -8,9 +8,13 @@ const winURL = isDev
   ? `http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`
   : `file://${__dirname}/index.html`
 
+const loadingURL = isDev
+  ? `http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}/loading.html`
+  : `file://${__dirname}/loading.html`
+
 let mainWindow
 
-let createWindow = ()  => {
+let createWindow = () => {
   mainWindow = new BrowserWindow({
     webPreferences: {
       nodeIntegration: true
@@ -29,6 +33,17 @@ let createWindow = ()  => {
   })
 }
 
+let loadingWindow
+let createLoadingWindow = () => {
+  loadingWindow = new BrowserWindow({
+    width: 400, 
+    height: 300
+  });
+
+  loadingWindow.loadURL(loadingURL)
+  loadingWindow.show();
+}
+
 let loadFixtures = () => {
   let req = require.context("./fixtures", false, /^(?!.*index.js)((.*\.(js\.*))[^.]*$)/)
   req.keys().forEach(function(key){
@@ -38,10 +53,10 @@ let loadFixtures = () => {
 
 app.on('ready', () => {
   sequelize.sync().then(() => {
-    createWindow()
-
     if (isDev)
       loadFixtures()
+
+    createWindow()
 
     autoUpdater.setWindow(mainWindow)
     autoUpdater.checkForUpdatesAndNotify()

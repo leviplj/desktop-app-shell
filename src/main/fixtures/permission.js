@@ -1,5 +1,5 @@
 import db from '../db/models/index'
-import perm from '$common/perm'
+import perm from '$common/permissions'
 import crypto from 'crypto'
 
 let permission = function(obj) {

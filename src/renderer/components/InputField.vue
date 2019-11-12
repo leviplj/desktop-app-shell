@@ -1,6 +1,6 @@
 <template>
   <div class="field">
-    <input :class="klass" type="text" placeholder=" " :id="id" :required="required" @input="$emit('input', $event.target.value)" :value="value">
+    <input :class="innherClass" :type="type" placeholder=" " :id="id" :required="required" @input="$emit('input', $event.target.value)" :value="value" :readonly="readonly">
     <label for="">
       <span class="placeholder">
         {{placeholder}}
@@ -11,7 +11,31 @@
 
 <script>
 export default {
-  props: ['placeholder', 'id', 'required', 'value', 'klass'],
+  props: {
+    placeholder: {
+      type: String
+    },
+    id: {
+      type: String
+    },
+    required:{
+      type: Boolean
+    },
+    value:{ },
+    innherClass:{
+      type: String
+    },
+    readonly:{
+      type: Boolean
+    },
+    type: {
+      type: String,
+      default: 'text',
+      validator: function (value) {       
+        return ['password', 'text'].indexOf(value) !== -1
+      }
+    }
+  }
 }
 </script>
 

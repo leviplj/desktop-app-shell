@@ -5,21 +5,37 @@ import crypto from 'crypto'
 ipcMain.handle('user', async (_, options) => {
   let filter = options || {}
   filter['raw'] = true
-  filter['nest'] = true
-  filter['order'] = [['id', 'ASC'],]
 
   return new Promise((resolve, reject) => {
     db.user.findOne(filter).then(user => {
-      console.log('user', user)
       if (! user) 
-        return resolve(false)
-      
+        return resolve([null, 'User Not Found'])
+ 
       db.user_permission.findAll({raw: true, nest: true,where:{userId: user.id},}).then(permissions => {
         user.permissions = permissions.map(x => x.permissionId)
-        resolve(user)
+        resolve([user])
       })
     })    
   })  
+})
+
+ipcMain.handle('users/login', async (_, options) => {
+  let filter = options || {}
+  filter['raw'] = true
+
+  return new Promise((resolve, reject) => {
+    db.user.findOne(filter).then(user => {
+      if (! user)
+        return resolve([null, 'User Not Found'])
+        db.user.logged_as = user
+
+        db.user.hasPermission(user.id, 'system_login').then(ok => {
+          return resolve([user])
+        }).catch(err => {
+          return resolve([null, 'User has no permission'])          
+        })
+    })
+  })
 })
 
 ipcMain.handle('users', (_, userId, options) => {
@@ -47,36 +63,41 @@ ipcMain.handle('permissions', async (_) => {
   return db.permission.findAll(filter)  
 })
 
-ipcMain.on('users/count', async (event, id) => {
-  let result = await db.user.findAll({
-    raw: true,
-    attributes:[[sequelize.fn('count', sequelize.col('id')), 'count']],
+ipcMain.handle('users/count', async (event, id) => {
+  return new Promise((resolve) =>{
+    db.user.findAll({
+      raw: true,
+      attributes:[[sequelize.fn('count', sequelize.col('id')), 'count']],
+    }).then(result => {
+      resolve(parseInt(result[0].count))
+    })
   })
-
-  event.returnValue = parseInt(result[0].count)
 })
 
-ipcMain.handle('users/save', (_, userId, {username, password, permissions}) => {
+ipcMain.handle('users/save', (_, userId, {username, password, is_super_user, permissions}) => {
   return new Promise((resolve) => {
     db.user.hasPermission(userId, 'user_create').then(ok => {
       if (! ok) {
-        resolve({err: `User ${userId} has no permission`})
+        resolve([null, `User ${userId} has no permission`])
         return
       }
 
       db.user.create({
-        username: username,
+        username,
         password: crypto.createHash('md5').update(password).digest("hex"),
+        is_super_user,
       }).then(user => {
         user.setPermissions(permissions)
   
-        resolve(user)
+        resolve([user])
+      }).catch(err => {
+        resolve([null, err])
       })
     })
   })
 })
 
-ipcMain.handle('users/update', (_, userId, {id, password, permissions}) => {
+ipcMain.handle('users/update', (_, userId, {id, password, is_super_user, permissions}) => {
   return new Promise((resolve) => {
     db.user.hasPermission(userId, 'user_update').then(ok => {
       if (! ok) {
@@ -87,6 +108,8 @@ ipcMain.handle('users/update', (_, userId, {id, password, permissions}) => {
       db.user.findOne({where: { id }}).then(user => {
         if (!! password)        
           user.password = crypto.createHash('md5').update(password).digest("hex")
+        
+        user.is_super_user = is_super_user
 
         user.save()
 
@@ -99,5 +122,11 @@ ipcMain.handle('users/update', (_, userId, {id, password, permissions}) => {
 })
 
 ipcMain.handle('permission', (_, userId, permission) => {
-  return db.user.hasPermission(userId, permission)
+  return new Promise((resolve) => {
+    db.user.hasPermission(userId, permission).then(ok => {
+      resolve([ok])
+    }).catch(err => {
+      resolve([null, err])
+    })    
+  })
 })
