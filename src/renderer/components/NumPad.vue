@@ -16,10 +16,10 @@
       <button type="button" @click="digit('1')">1</button>
       <button type="button" @click="digit('2')">2</button>
       <button type="button" @click="digit('3')">3</button>
-      <button type="button" @click="cancel()" :disabled="!$listeners.cancel">&#10006;</button>
+      <button type="button" class="cancel" @click="cancel()" :disabled="!$listeners.cancel">&#10006;</button>
 
       <button type="button" class="zero" @click="digit('0')">0</button>
-      <button type="button" @click="confirm()">&#10004;</button>
+      <button type="button" class="confirm" @click="confirm()">&#10004;</button>
     </div>
   </div>
 </template>
@@ -92,6 +92,14 @@
 
         &.zero {
           flex-basis: 71%;
+        }
+
+        &.cancel {
+          background: #B23025;
+        }
+
+        &.confirm {
+          background: #1FA83A;
         }
 
         &:disabled {
