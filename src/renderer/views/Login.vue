@@ -56,32 +56,31 @@
       }
     },
     methods: {      
+      setError: function(error, timeout) {
+        this.error = error
+        setTimeout(() => {
+          this.error = ''          
+        }, timeout);
+      },
       login: function() {
-        if (! this.username) {
-          this.error = 'Username is required'
-          return
-        }
+        if (! this.username) 
+          return this.setError('Username is required', 5000)
 
-        if (! this.password) {
-          this.error = 'Password is required'
-          return
-        }
+        if (! this.password)
+          return this.setError('Password is required', 5000)
 
         ipcRenderer.invoke('users/login', {
           where: {username: this.username, password: crypto.createHash('md5').update(this.password).digest("hex")}
-        }).then(([user, err]) => {
-          console.log(err)
-          if (!! err) {
-            this.error = err
-            return 
-          }
+        }).then(([user, err]) => {          
+          if (!! err)
+            return this.setError(err, 5000)
 
           localStorage.setItem('jwt', `jwt-token`)
           localStorage.setItem('userId', user.id)
           EventBus.$emit('refresh')
           this.navigate({name: 'Main'})
         }).catch(err => {
-          this.error = 'Sorry, these credentials are invalid.' + err
+          return this.setError('Sorry, these credentials are invalid.' + err, 10000)
         })
       },      
       findUser: function(val) {
@@ -89,10 +88,8 @@
         ipcRenderer.invoke('user', {
           where: {reg_number: val}
         }).then(([user, err]) => {
-          if (err) {
-            this.error = err
-            return
-          }
+          if (err)
+            return this.setError(err, 5000)
 
           this.error = ''
           this.username = user.username          
