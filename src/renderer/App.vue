@@ -57,6 +57,7 @@
   export default {
     name: 'proto',
     components: { SideMenu },
+    mixins: [ NavMixin, ],
     data(){
       return {
         w: require('electron').remote.getCurrentWindow(),        
